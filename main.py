@@ -22,34 +22,3 @@ async def get_coordinates(placename: str):
     g_dict = getAddressAndCoordinates(g)
 
     return g_dict
-    
-# Experimental
-# @app.get('/')
-# def test():
-#     g = geocoder.geonames(location='New York', key=GEONAMES_USERNAME)
-#     return {
-#         'address': g.address,
-#         'geonames_id': g.geonames_id,
-#         'description': g.description,
-#         'population': g.population,
-    # }
-
-# @app.get("/coordinates/")
-# async def get_coordinates(placename: str):
-#     params = {
-#         'q': placename,
-#         'maxRows': 5,
-#         'username': GEONAMES_USERNAME
-#     }
-#     try:
-#         response = requests.get(GEONAMES_API_URL, params=params)
-#         response.raise_for_status()
-#         data = response.json()
-#         # Extract coordinates and other desired info from response
-#         coordinates = [
-#             {"name": place['toponymName'], "lat": place['lat'], "lng": place['lng']}
-#             for place in data.get('geonames', [])
-#         ]
-#         return coordinates
-#     except requests.RequestException as e:
-#         raise HTTPException(status_code=400, detail=str(e))

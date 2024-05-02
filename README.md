@@ -21,7 +21,7 @@ In bash, run the backend with following command (Win/Lin/Os):
 ```bash
 uvicorn main:app --reload
 ```
-The paths for the endpoint API's are under '/api/...'. Feel free to explore.
+The paths for the endpoint API's are under 'localhost:8000/api/...'. Feel free to explore.
 
 ## Project status
 Still in development.
