@@ -18,6 +18,7 @@ app.add_middleware(
 # TODO: Store sensible data in an .env file or get the username from request body
 GEONAMES_USERNAME = 'siri_yu'
 
+# TODO: Organize the requests into different route-files
 @app.get('/api/coordinates')
 async def get_coordinates(placename: str):
     # Static parameters (FIXME: outsource if necessary)
