@@ -1,9 +1,12 @@
 '''
     Extractin the addresses and coordinates of the readen geonames 
-    and returning a dict with the attributes [location → (lat, lng)...] 
+    and returning an array with dicts with corresponding attributes [location → (lat, lng)...] 
 '''
-def getAddressAndCoordinates(geoDict):
-    g = {}
-    for r in geoDict:
-        g[r.address] = (float(r.lat), float(r.lng))
-    return g
+def structuredGeolocations(geoDict):
+    return [{
+        'name': r.address,
+        'position': [round(float(r.lat), 2), round(float(r.lng), 2)],
+        'continent': r.continent,
+        'country': r.country,
+        'state': r.state,
+    } for r in geoDict ]
