@@ -1,5 +1,6 @@
 import geocoder
 from fastapi import FastAPI
+from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from utils.dictFunctions import structuredGeolocations
 
@@ -32,5 +33,8 @@ async def get_geolocations(placename: str):
     g_details = [geocoder.geonames(location=row.geonames_id, method='details', key=params['username']) for row in geoObjects]
     # Array, which includes geolocations and their respective coordinates
     gls = structuredGeolocations(g_details)
+
+    if len(gls) == 0:
+        raise HTTPException(status_code=404, detail="No location available")
 
     return gls
