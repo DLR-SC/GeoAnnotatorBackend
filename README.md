@@ -14,7 +14,10 @@ conda create -n GeoAnnotator_backend python && conda activate GeoAnnotator_backe
 ```bash
 pip install fastapi "uvicorn[standard]"
 ```
-- ...
+- Geocoder, for "geocoding" exact position of a place
+```bash
+pip install geocoder
+```
 
 ## Usage
 In bash, run the backend with following command (Win/Lin/Os):
