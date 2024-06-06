@@ -27,4 +27,4 @@ uvicorn main:app --reload
 The paths for the endpoint API's are under 'localhost:8000/api/...'. Feel free to explore.
 
 ## Project status
-Still in development.
+Project finished.
