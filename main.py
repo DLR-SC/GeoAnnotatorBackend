@@ -2,7 +2,9 @@ import geocoder
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from utils.dictFunctions import structuredGeolocations
+from utils.dictFunctions import *
+from utils.baseModels import *
+import openai
 
 # Initiating the router
 app = FastAPI()
@@ -38,3 +40,21 @@ async def get_geolocations(placename: str):
         raise HTTPException(status_code=404, detail="No location available")
 
     return gls
+
+@app.post("/geoparse", response_model=list[GeoReference])
+async def geoparse_text(request: TextRequest):
+    try:
+        # Call OpenAI API with the unstructured text
+        response = openai.Completion.create(
+            engine="text-davinci-003",  # You can use GPT-3.5 or the latest model
+            prompt=f"Extract geographic references from the following text: {request.text}. For each location, provide the name, latitude, and longitude.",
+            max_tokens=150,
+            temperature=0.0
+        )
+
+        # Parse the response to extract location names and coordinates
+        extracted_locations = parse_georeferences(response.choices[0].text)
+
+        return extracted_locations
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
