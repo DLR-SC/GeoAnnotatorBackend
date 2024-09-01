@@ -5,6 +5,7 @@ from pydantic import BaseModel
 # TextRequest
 class TextRequest(BaseModel):
     text: str
+    model: str
 
 # Georeference
 class GeoReference(BaseModel):

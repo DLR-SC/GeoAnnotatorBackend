@@ -1,10 +1,17 @@
 import geocoder
+
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+
+from utils.geoparseFunctions import *
 from utils.dictFunctions import *
 from utils.baseModels import *
-import openai
+
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Initiating the router
 app = FastAPI()
@@ -18,8 +25,6 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers or specify with ["X-Custom-Header"]
 )
 
-GEONAMES_USERNAME = 'siri_yu'
-
 # TODO: Organize the requests into different route-files
 @app.get('/api/geolocations')
 async def get_geolocations(placename: str):
@@ -27,7 +32,7 @@ async def get_geolocations(placename: str):
     params = {
         'q': placename,
         'maxRows': 5,
-        'username': GEONAMES_USERNAME
+        'username': os.getenv("GEONAMES_USERNAME")
     }
     # Geocoded location
     geoObjects = geocoder.geonames(location=params['q'], maxRows=params['maxRows'], key=params['username'])
@@ -41,20 +46,19 @@ async def get_geolocations(placename: str):
 
     return gls
 
-@app.post("/geoparse", response_model=list[GeoReference])
+@app.post("/api/geoparse")
 async def geoparse_text(request: TextRequest):
     try:
-        # Call OpenAI API with the unstructured text
-        response = openai.Completion.create(
-            engine="text-davinci-003",  # You can use GPT-3.5 or the latest model
-            prompt=f"Extract geographic references from the following text: {request.text}. For each location, provide the name, latitude, and longitude.",
-            max_tokens=150,
-            temperature=0.0
-        )
+        match request.model:
+            case 'gpt':
+                response = geoparseTextGPT(request.text)
+            case _:
+                response = geoparseTextGPT(request.text)
 
-        # Parse the response to extract location names and coordinates
-        extracted_locations = parse_georeferences(response.choices[0].text)
+        # Parse the response to a json-list
+        extracted_locations = parseGeoreferences(response.choices[0].message.content)
 
+        # return extracted_locations
         return extracted_locations
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
