@@ -11,7 +11,11 @@ from utils.baseModels import *
 from dotenv import load_dotenv
 import os
 
+# Load .env variables
 load_dotenv()
+
+# Initialize LLMs
+initializeLLMs()
 
 # Initiating the router
 app = FastAPI()
@@ -50,15 +54,13 @@ async def get_geolocations(placename: str):
 async def geoparse_text(request: TextRequest):
     try:
         match request.model:
-            case 'gpt':
-                response = geoparseTextGPT(request.text)
+            case "gpt":
+                extracted_locations = geoparseTextGPT(request.text)
+            case "bert":
+                extracted_locations = geoparseTextBERT(request.text)
             case _:
-                response = geoparseTextGPT(request.text)
+                extracted_locations = geoparseTextGPT(request.text)
 
-        # Parse the response to a json-list
-        extracted_locations = parseGeoreferences(response.choices[0].message.content)
-
-        # return extracted_locations
         return extracted_locations
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
