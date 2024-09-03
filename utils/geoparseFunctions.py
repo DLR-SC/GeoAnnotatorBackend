@@ -28,8 +28,9 @@ def geoparseTextGPT(text: str):
                     {
                         "role": "user",
                         "content": f'''
-                            Extract geographic references from the following text: {text}. 
-                            For each location, provide the name, latitude, and longitude as a json-object, like {{ name: ..., latitude: ..., longitude: ...}}. 
+                            Extract geographic references from the following text: {text}.
+                            Locations can be seperated with a symbol like a comma. But you need to pay attention to the context, if its referring to the same place.
+                            For each location, provide the name, latitude, and longitude as a json-object, like {{ name: ..., position: [latitude, longitude] }}. 
                             Please only return the json-object with no explanation or further information and as a normal text, without labeling it as json.
                         ''',
                     }
@@ -52,7 +53,7 @@ def geoparseTextBERT(text: str):
             location = entity['word']
             location_obj = geolocator.geocode(location)
             if location_obj:
-                locations.append({ "name": location, "latitude": location_obj.latitude, "longitude": location_obj.longitude })
+                locations.append({ "name": location, "position": [location_obj.latitude, location_obj.longitude] })
             time.sleep(1)  # Delay, to respect the API-rate limit
 
     return locations

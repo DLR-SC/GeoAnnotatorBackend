@@ -53,7 +53,8 @@ async def get_geolocations(placename: str):
 @app.post("/api/geoparse")
 async def geoparse_text(request: TextRequest):
     try:
-        match request.model:
+        model = request.model
+        match model:
             case "gpt":
                 extracted_locations = geoparseTextGPT(request.text)
             case "bert":
