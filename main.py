@@ -29,7 +29,6 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers or specify with ["X-Custom-Header"]
 )
 
-# TODO: Organize the requests into different route-files
 @app.get('/api/geolocations')
 async def get_geolocations(placename: str):
     # Static parameters (FIXME: outsource if necessary)

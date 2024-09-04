@@ -53,7 +53,9 @@ def geoparseTextBERT(text: str):
             location = entity['word']
             location_obj = geolocator.geocode(location)
             if location_obj:
-                locations.append({ "name": location, "position": [location_obj.latitude, location_obj.longitude] })
+                lat = round(float(location_obj.latitude), 2)
+                long = round(float(location_obj.longitude), 2)
+                locations.append({ "name": location, "position": [lat, long] })
             time.sleep(1)  # Delay, to respect the API-rate limit
 
     return locations
