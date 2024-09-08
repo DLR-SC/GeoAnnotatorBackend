@@ -17,10 +17,6 @@ load_dotenv()
 
 PROVIDER_FILE_PATH = os.getenv("PROVIDER_FILE_PATH")
 
-# Initialize LLMs
-# initializeLLMs()
-
-
 # Initiating the router
 app = FastAPI()
 
@@ -56,12 +52,14 @@ async def get_geolocations(placename: str):
 @app.post("/api/geoparse")
 async def geoparse_text(request: GeoparseRequest):
     try:
-        model = request.model
-        match model:
-            case "gpt":
-                extracted_locations = geoparseTextGPT(request.text)
-            case "bert":
-                extracted_locations = geoparseTextBERT(request.text)
+        option = request.provider['option']
+        match option:
+            case "openai":
+                extracted_locations = geoparseTextGPT(request.text, request.provider)
+            # case "bert":
+            #     extracted_locations = geoparseTextBERT(request.text)
+            # case "selfhosted":
+            #     extracted_locations = geoparseTextSelfhosted(request.text, request.provider)
             case _:
                 extracted_locations = geoparseTextGPT(request.text)
 

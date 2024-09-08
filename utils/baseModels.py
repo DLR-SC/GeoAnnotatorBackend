@@ -11,7 +11,7 @@ class ProviderRequest(BaseModel):
 # GeoparseRequest
 class GeoparseRequest(BaseModel):
     text: str
-    model: str
+    provider: dict
 
 # Georeference
 class GeoReference(BaseModel):
