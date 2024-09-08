@@ -5,7 +5,6 @@ import json
     Geoparsing text with an OpenAI-GPT model
 '''
 def geoparseTextGPT(text: str, provider: dict):
-    print(text)
     response = OpenAI(api_key=provider['data']['api_key']).chat.completions.create(
                 messages=[
                     {
