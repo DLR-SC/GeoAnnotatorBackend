@@ -18,6 +18,10 @@ pip install fastapi "uvicorn[standard]"
 ```bash
 pip install geocoder
 ```
+- httpx, for asynchrone HTTP-Requests
+```bash
+conda install httpx
+```
 
 ## Usage
 In bash, run the backend with following command (Win/Lin/Os):

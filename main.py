@@ -1,7 +1,6 @@
 import geocoder
 
-from fastapi import FastAPI
-from fastapi.exceptions import HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 from utils.geoparseFunctions import *
@@ -52,14 +51,14 @@ async def get_geolocations(placename: str):
 @app.post("/api/geoparse")
 async def geoparse_text(request: GeoparseRequest):
     try:
-        option = request.provider['option']
+        option = request.provider["option"]
         match option:
             case "openai":
                 extracted_locations = geoparseTextGPT(request.text, request.provider)
             # case "bert":
             #     extracted_locations = geoparseTextBERT(request.text)
-            # case "selfhosted":
-            #     extracted_locations = geoparseTextSelfhosted(request.text, request.provider)
+            case "selfhosted":
+                extracted_locations = await geoparseTextSelfHosted(request.text, request.provider)
             case _:
                 extracted_locations = geoparseTextGPT(request.text)
 
@@ -84,8 +83,25 @@ async def save_provider(request: ProviderRequest):
 
         return { "message": "Provider has been saved succesfully!" }
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to save data: " + str(e))
-    
+        raise HTTPException(status_code=500, detail="Failed to save provider: " + str(e))
+
+@app.delete("/api/provider/delete")
+async def delete_provider(instance_name: str = Query(..., description="The instance name of the provider to delete")):
+    try:
+        providers = load_existing_provider_data(PROVIDER_FILE_PATH)
+        updated_providers = [p for p in providers if p['instance_name'] != instance_name]
+
+        if len(updated_providers) == len(providers):
+            raise HTTPException(status_code=404, detail="Provider not found")
+
+        # Save updated provider list
+        with open(PROVIDER_FILE_PATH, "w") as file:
+            json.dump(updated_providers, file, indent=2)
+
+        return {"message": "Provider deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Failed to delete provider: " + str(e))
+
 @app.get("/api/provider/all")
 async def get_all_providers():
     try:
