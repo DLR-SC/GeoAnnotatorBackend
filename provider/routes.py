@@ -21,10 +21,10 @@ async def get_all_providers():
         raise HTTPException(status_code=500, detail="Failed to read providers: " + str(e))
 
 @router.post("/provider")
-async def save_provider(request: ProviderRequest):
+async def save_provider(request: Provider):
     try:
         # Create directory, if it does not exist
-        os.makedirs(os.path.dirname(PROVIDER_FILE_PATH), exist_ok=True)
+        os.mkdir(os.path.dirname(PROVIDER_FILE_PATH), exist_ok=True)
 
         existing_data = load_existing_provider_data(PROVIDER_FILE_PATH) if os.path.exists(PROVIDER_FILE_PATH) else []
 
@@ -40,7 +40,7 @@ async def save_provider(request: ProviderRequest):
         raise HTTPException(status_code=500, detail="Failed to save provider: " + str(e))
 
 @router.put("/provider")
-async def update_provider(request: ProviderRequest):
+async def update_provider(request: Provider):
     providers = load_existing_provider_data(PROVIDER_FILE_PATH) if os.path.exists(PROVIDER_FILE_PATH) else None
 
     if(providers is None): 

@@ -1,9 +1,9 @@
 from pydantic import BaseModel
 
-'Here, you find the response structures'
+'Request structures'
 
-# GeoparseRequest
-class ProviderRequest(BaseModel):
+# Provider
+class Provider(BaseModel):
     option: str
     instance_name: str
     data: dict
@@ -14,7 +14,13 @@ class GeoparseRequest(BaseModel):
     provider: dict
 
 # Georeference
-class GeoReference(BaseModel):
-    location_name: str
-    latitude: float
-    longitude: float
+class Georeference(BaseModel):
+    name: str
+    position: tuple[float, float]
+
+# Feedback for active learning
+class FeedbackRequest(BaseModel):
+    text: str
+    predictions: list
+    corrections: list
+    provider: Provider

@@ -1,26 +1,64 @@
+from utils.baseModels import Provider
 from openai import OpenAI
 import requests
 import json
 
+
 '''
     Geoparsing text with an OpenAI-GPT model
 '''
-def geoparseTextGPT(text: str, provider: dict):
+def geoparseTextGPT(text: str, provider: Provider):
     response = OpenAI(api_key=provider["data"]["api_key"]).chat.completions.create(
                 messages=[
                     {
                         "role": "system",
-                        "content": "Extract geographic references from the input. For each location, provide the name (how it appears in the text), latitude, and longitude as a json-object, like { name: ..., position: [latitude, longitude] } and create a json-list out of these objects. Please only return the value with no explanation or further information and as a normal text, without labeling it as json.",
+                        "content": "You are an assitant that strictly extracts geographic references from the input. For each location, provide the name (how it appears in the text), latitude, and longitude as a json-object, like { name: ..., position: [latitude, longitude] } and create a json-list out of these objects. Please only return the value with no explanation or further information and as a normal text, without labeling it as json.",
                     },
                     {
                         "role": "user",
                         "content": text,
                     }
                 ],
-                model=provider["data"]["model"]
+                response_format={
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "georeferences",
+                        "strict": True,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "georeferences": {
+                                    "type": "array",  
+                                    "items": {       
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "position": {
+                                                "type": "array",  
+                                                "items": {
+                                                    "type": "number"
+                                                }
+                                            }
+                                        },
+                                        "required": ["name", "position"],
+                                        "additionalProperties": False
+                                    }
+                                }
+                            },
+                            "required": ["georeferences"],
+                            "additionalProperties": False
+                        }
+                    }
+                },
+                model=provider["data"]["model"],
+                temperature=0
             ).choices[0].message.content
+    output=json.loads(response)
 
-    return json.loads(response)
+
+    return output["georeferences"]
 
 '''
     Geoparsing text with a selfhosted LLM
@@ -65,7 +103,7 @@ async def geoparseTextSelfHosted(text: str, provider: dict):
                     }
                 }
             },
-            "temperature": 0.7,
+            "temperature": 0,
             "max_tokens": -1,
             "stream": False
         }, 

@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from provider import routes as provider
-from geoparse import routes as geoparse
+from provider       import routes as provider
+from geoparse       import routes as geoparse
+from activeLearning import routes as activeLearning
 
 # Initiating the router
 app = FastAPI()
@@ -19,3 +20,4 @@ app.add_middleware(
 # Include the API-paths
 app.include_router(provider.router, prefix="/api")
 app.include_router(geoparse.router, prefix="/api")
+app.include_router(activeLearning.router, prefix="/api")
