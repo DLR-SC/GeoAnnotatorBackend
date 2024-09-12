@@ -91,13 +91,15 @@ import os
 
 'Retrain-Job-Check for Threshold'
 async def check_feedback_threshold(provider: Provider, DIR_PATH):
-    with open(f"{DIR_PATH}/{provider.instance_name}_feedback.json", "r") as f:
-        feedback_lines = [json.loads(line) for line in f.readlines()]
-        if len(feedback_lines) >= provider.data.threshold_retrain_job: 
+    file_path = os.path.join(DIR_PATH, f"{provider.instance_name}_feedback.json")
+
+    with open(file_path, "r") as f:
+        feedback_data = json.load(f)
+        if len(feedback_data) >= provider.data["threshold_retrain_job"]: 
             # retrain_model(feedback_lines)
             print("Threshold achieved.")
             # Nach dem Training wird die Datei geleert
-            open("feedback.json", "w").close()
+            open(file_path, "w").close()
 
 'Save data locally'
 async def store_feedback(feedback: FeedbackRequest, DIR_PATH):
