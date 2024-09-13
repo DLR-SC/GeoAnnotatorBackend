@@ -1,5 +1,6 @@
-# from transformers import GPT2Tokenizer, GPT2LMHeadModel, pipeline, AutoModelForTokenClassification, AutoTokenizer, Trainer, TrainingArguments
-# from datasets import Dataset
+from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments
+from peft import LoraConfig, get_peft_model
+from datasets import Dataset
 # import mlflow
 # import torch
 
@@ -9,8 +10,7 @@ import os
 
 # def compute_metrics(pred):
 #     'Berechnung der Metriken Precision, Recall und F1'
-#     labels = pred.label_ids
-#     preds = pred.predictions.argmax(-1)
+#     labels = pred.label_ids, preds = pred.predictions.argmax(-1)
 #     precision, recall, f1, _ = precision_recall_fscore_support(labels, preds, average='weighted')
 #     return {
 #         'precision': precision,
@@ -18,76 +18,88 @@ import os
 #         'f1': f1
 #     }
 
-# 'Funktion zum Retraining des Modells mit neuen Daten'
-# def retrain_model(feedback_data, _model_):
-#     match _model_:
-#         case "BERT":
-#             model_name = "dbmdz/bert-large-cased-finetuned-conll03-english"
-#             model = pipeline("ner", model=model_name, tokenizer="bert-base-cased")
-#         case "GPT2":
-#             model = GPT2LMHeadModel.from_pretrained('gpt2')
-#             tokenizer = GPT2Tokenizer.from_pretrained(model_name)
-#         case _:
-#             model_name = "dbmdz/bert-large-cased-finetuned-conll03-english"
-#             model = pipeline("ner", model=model_name, tokenizer="bert-base-cased")
+'Funktion zum Retraining des Modells mit neuen Daten'
+def retrain_model(feedback_data, provider):
+   # Preprocessing for Finetuning
+    texts = []
+    labels = []
 
-#     # Vorbereitung der Daten für das Fine-Tuning
-#     texts = []
-#     labels = []
-#     for entry in feedback_data:
-#         texts.append(entry["text"])
-#         # Dummy-Label-Erstellung für Beispiel; hier würde das korrekte Labeling erfolgen
-#         labels.append([1] * len(tokenizer(entry["text"])["input_ids"])) 
+    for entry in feedback_data:
+        text = entry["text"]
+        corrected_labels = entry["corrections"]
+        
+        texts.append(text)
+        labels.append(corrected_labels)
 
-#     # Datensatz erstellen
-#     dataset = Dataset.from_dict({"text": texts, "labels": labels})
-#     dataset = dataset.map(lambda e: tokenizer(e['text'], truncation=True, padding='max_length'), batched=True)
+    # Hugging Face Dataset
+    train_dataset = Dataset.from_dict({"text": texts, "labels": labels})
 
-#     # Trainingsparameter
-#     training_args = TrainingArguments(
-#         output_dir="./results",
-#         evaluation_strategy="epoch",
-#         learning_rate=2e-5,
-#         per_device_train_batch_size=8,
-#         num_train_epochs=3,
-#         weight_decay=0.01,
-#         # save_steps=10_000,
-#         # save_total_limit=2,
-#         fp16=True,  # Mixed precision training für effizienteres Training
-#     )
+    # Lade das LLaMA-Modell und den Tokenizer
+    model_name = "path/to/llama-3.1-8b"  # Gib den Pfad zum GGUF-Modell an
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        load_in_8bit=True,  # Für 8-Bit-Training (speicher- und performance-effizient)
+        device_map="auto"
+    )
 
-#     # Trainer initialisieren
-#     trainer = Trainer(
-#         model=model,
-#         args=training_args,
-#         train_dataset=dataset,
-#         eval_dataset=dataset,
-#     )
+    # Konfiguriere QLoRA für effizientes Feintuning
+    lora_config = LoraConfig(
+        r=4,                       
+        lora_alpha=16,             
+        lora_dropout=0.05,         
+        target_modules=["q_proj", "v_proj"],  
+        bias="none",               
+        task_type="CAUSAL_LM"      
+    )
 
-#     # Fine-Tuning durchführen
-#     trainer.train()
+    # PEFT-Modell erstellen
+    peft_model = get_peft_model(model, lora_config)
 
-#      # Evaluation durchführen
-#     eval_results = trainer.evaluate()
+    # Trainingsargumente konfigurieren
+    training_args = TrainingArguments(
+        output_dir="./results",
+        per_device_train_batch_size=4,
+        num_train_epochs=3,
+        learning_rate=3e-4,
+        fp16=True,
+        logging_steps=10,
+        evaluation_strategy="steps",
+        save_steps=500,
+        save_total_limit=2
+    )
 
-#     # Modell speichern
-#     trainer.save_model("./fine_tuned_model")
-#     print("Modell wurde neu trainiert und gespeichert.")
+    # Trainer initialisieren
+    trainer = Trainer(
+        model=peft_model,
+        args=training_args,
+        train_dataset=train_dataset,
+    )
 
-#      # MLFlow Tracking starten
-#     mlflow.start_run()
+    # Fine-Tuning durchführen
+    trainer.train()
 
-#     # Speichern der Metriken in MLFlow
-#     mlflow.log_metric("precision", eval_results['eval_precision'])
-#     mlflow.log_metric("recall", eval_results['eval_recall'])
-#     mlflow.log_metric("f1", eval_results['eval_f1'])
+    # Evaluation durchführen
+    # eval_results = trainer.evaluate()
 
-#     # Speichern der Trainingsparameter
-#     mlflow.log_param("learning_rate", training_args.learning_rate)
-#     mlflow.log_param("batch_size", training_args.per_device_train_batch_size)
-#     mlflow.log_param("num_train_epochs", training_args.num_train_epochs)
+    # Modell speichern
+    trainer.save_model("./fine_tuned_model")
+    print("Modell wurde neu trainiert und gespeichert.")
 
-#     mlflow.end_run()
+    #  # MLFlow Tracking starten
+    # mlflow.start_run()
+
+    # # Speichern der Metriken in MLFlow
+    # mlflow.log_metric("precision", eval_results['eval_precision'])
+    # mlflow.log_metric("recall", eval_results['eval_recall'])
+    # mlflow.log_metric("f1", eval_results['eval_f1'])
+
+    # # Speichern der Trainingsparameter
+    # mlflow.log_param("learning_rate", training_args.learning_rate)
+    # mlflow.log_param("batch_size", training_args.per_device_train_batch_size)
+    # mlflow.log_param("num_train_epochs", training_args.num_train_epochs)
+
+    # mlflow.end_run()
 
 'Retrain-Job-Check for Threshold'
 async def check_feedback_threshold(provider: Provider, DIR_PATH):
@@ -96,7 +108,7 @@ async def check_feedback_threshold(provider: Provider, DIR_PATH):
     with open(file_path, "r") as f:
         feedback_data = json.load(f)
         if len(feedback_data) >= provider.data["threshold_retrain_job"]: 
-            # retrain_model(feedback_lines)
+            # retrain_model(feedback_data, provider)
             print("Threshold achieved.")
             # Nach dem Training wird die Datei geleert
             open(file_path, "w").close()

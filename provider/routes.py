@@ -24,7 +24,7 @@ async def get_all_providers():
 async def save_provider(request: Provider):
     try:
         # Create directory, if it does not exist
-        os.mkdir(os.path.dirname(PROVIDER_FILE_PATH), exist_ok=True)
+        os.makedirs(os.path.dirname(PROVIDER_FILE_PATH), exist_ok=True)
 
         existing_data = load_existing_provider_data(PROVIDER_FILE_PATH) if os.path.exists(PROVIDER_FILE_PATH) else []
 
