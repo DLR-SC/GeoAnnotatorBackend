@@ -1,6 +1,5 @@
+from provider.providerFunctions import load_existing_provider_data
 from fastapi import APIRouter, HTTPException, Query
-
-from utils.dictFunctions import load_existing_provider_data
 from utils.baseModels import *
 
 from dotenv import load_dotenv
@@ -15,7 +14,7 @@ router = APIRouter()
 @router.get("/provider/all")
 async def get_all_providers():
     try:
-        data = load_existing_provider_data(PROVIDER_FILE_PATH)
+        data = await load_existing_provider_data(PROVIDER_FILE_PATH)
         return data
     except Exception as e:
         raise HTTPException(status_code=500, detail="Failed to read providers: " + str(e))
@@ -26,7 +25,7 @@ async def save_provider(request: Provider):
         # Create directory, if it does not exist
         os.makedirs(os.path.dirname(PROVIDER_FILE_PATH), exist_ok=True)
 
-        existing_data = load_existing_provider_data(PROVIDER_FILE_PATH) if os.path.exists(PROVIDER_FILE_PATH) else []
+        existing_data = await load_existing_provider_data(PROVIDER_FILE_PATH) if os.path.exists(PROVIDER_FILE_PATH) else []
 
         # Append new provider onto list
         existing_data.append(request.model_dump())
@@ -41,13 +40,11 @@ async def save_provider(request: Provider):
 
 @router.put("/provider")
 async def update_provider(request: Provider):
-    providers = load_existing_provider_data(PROVIDER_FILE_PATH) if os.path.exists(PROVIDER_FILE_PATH) else None
+    providers = await load_existing_provider_data(PROVIDER_FILE_PATH) if os.path.exists(PROVIDER_FILE_PATH) else None
 
     if(providers is None): 
         raise HTTPException(status_code=404, detail="Provider not found!")
     
-    print(request.model_dump())
-
     for i, provider in enumerate(providers):
         if provider["instance_name"] == request.instance_name:
             providers[i] = request.model_dump()
@@ -62,7 +59,7 @@ async def update_provider(request: Provider):
 @router.delete("/provider")
 async def delete_provider(index: int = Query(..., description="The index of the provider")):
     try:
-        providers = load_existing_provider_data(PROVIDER_FILE_PATH)
+        providers = await load_existing_provider_data(PROVIDER_FILE_PATH)
 
         del providers[index]
 

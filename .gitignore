@@ -1,5 +1,9 @@
 # Cache
 __pycache__/
-utils/__pycache__/
+
+# Enviroment variables
 .env
+
+# Local data
 out/
+models/

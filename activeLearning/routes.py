@@ -10,6 +10,15 @@ FEEDBACK_DIR_PATH=os.getenv("FEEDBACK_DIR_PATH")
 
 router = APIRouter()
 
+@router.get("/feedback")
+async def countFeedback(instance_name: str):
+    try:
+        feedback_data = await load_feedback(instance_name, FEEDBACK_DIR_PATH)
+
+        return { "feedback_count": len(feedback_data) }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Counting feedback failed! {str(e)}")
+
 @router.post("/feedback")
 async def feedback(request: FeedbackRequest):
     try:

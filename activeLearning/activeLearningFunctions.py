@@ -102,7 +102,7 @@ def retrain_model(feedback_data, provider):
     # mlflow.end_run()
 
 'Retrain-Job-Check for Threshold'
-async def check_feedback_threshold(provider: Provider, DIR_PATH):
+async def check_feedback_threshold(provider: Provider, DIR_PATH) -> None:
     file_path = os.path.join(DIR_PATH, f"{provider.instance_name}_feedback.json")
 
     with open(file_path, "r") as f:
@@ -117,13 +117,10 @@ async def check_feedback_threshold(provider: Provider, DIR_PATH):
 async def store_feedback(feedback: FeedbackRequest, DIR_PATH):
     file_path = os.path.join(DIR_PATH, f"{feedback.provider.instance_name}_feedback.json")
 
-    if os.path.exists(file_path):
+    try:
         with open(file_path, "r") as f:
-            try:
-                feedback_data = json.load(f)
-            except json.JSONDecodeError:
-                feedback_data = []  
-    else:
+            feedback_data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
         feedback_data = []
 
     feedback_entry = {
@@ -135,3 +132,15 @@ async def store_feedback(feedback: FeedbackRequest, DIR_PATH):
 
     with open(file_path, "w") as f:
         json.dump(feedback_data, f, indent=2)
+
+'Return feedback data for specific provider'
+async def load_feedback(instance_name: str, DIR_PATH) -> list[dict]:
+    file_path = os.path.join(DIR_PATH, f"{instance_name}_feedback.json")
+
+    try:
+        with open(file_path, "r") as f:
+            feedback_data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        feedback_data = []
+
+    return feedback_data
