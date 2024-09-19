@@ -67,11 +67,11 @@ async def geoparseTextSelfHosted(text: str, provider: dict):
     response = requests.post(
         url=provider["data"]["hostserver_url"] + '/chat/completions',
         json={
-            "model": "lmstudio-community/Meta-Llama-3.1-8B-Instruct-GGUF/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf",
+            "model": provider["data"]["model"],
             "messages": [
                 {
                     "role": "system",
-                    "content": "Extract geographic references from the input. For each location, provide the name (how it appears in the text), latitude and longitude as a json-object, like { name: ..., position: [latitude, longitude] } and create a json-list out of these objects. Please only return the value with no explanation or further information and as a normal text, without labeling it as json.",
+                    "content": "Extract geographic references from the input. For each location, provide the place-name (how it appears in the text), latitude and longitude of the place as a json-object, like { name: place-name, position: [latitude, longitude] } and create a json-list out of these objects. Please only return the value with no explanation or further information and as a normal text without labeling it as json.",
                 },
                 {
                     "role": "user",
@@ -94,8 +94,10 @@ async def geoparseTextSelfHosted(text: str, provider: dict):
                                 "position": {
                                     "type": "array",  
                                     "items": {
-                                        "type": "number"
-                                    }
+                                        "type": "number",
+                                    },
+                                    "minItems": 2,
+                                    "maxItems": 2
                                 }
                             },
                             "required": ["name", "position"]
@@ -103,14 +105,14 @@ async def geoparseTextSelfHosted(text: str, provider: dict):
                     }
                 }
             },
-            "temperature": 0,
+            "temperature": 0.7,
             "max_tokens": -1,
             "stream": False
         }, 
         headers={"Content-Type": "application/json"},
     )
     output=response.json()
-
+    print(output['choices'][0]['message']['content'])
     return json.loads(output['choices'][0]['message']['content'])
 
 # '''
