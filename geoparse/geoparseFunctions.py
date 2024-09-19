@@ -112,7 +112,7 @@ async def geoparseTextSelfHosted(text: str, provider: dict):
         headers={"Content-Type": "application/json"},
     )
     output=response.json()
-    print(output['choices'][0]['message']['content'])
+    
     return json.loads(output['choices'][0]['message']['content'])
 
 # '''
