@@ -78,9 +78,9 @@ async def evaluateFeedback(feedback_data):
         tags={"feedback": "evaluation"},
         description="Evaluation of feedback → precision, recall, f1, accuracy for locations in ~ 10km and ~ 161km distances"
     ):
-        mlflow.log_metric("precision", precision)
-        mlflow.log_metric("recall", recall)
-        mlflow.log_metric("f1", f1_score)
+        mlflow.log_metric("Precision", precision)
+        mlflow.log_metric("Recall", recall)
+        mlflow.log_metric("F1 Scrore", f1_score)
         mlflow.log_metric("A-161", round(calculate_A_at_k(matched_coordinates, 161),2))
         mlflow.log_metric("A-10", round(calculate_A_at_k(matched_coordinates, 10),2))
 
