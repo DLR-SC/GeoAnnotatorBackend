@@ -12,7 +12,7 @@ def geoparseTextGPT(text: str, provider: Provider):
                 messages=[
                     {
                         "role": "system",
-                        "content": "You are an assitant that strictly extracts geographic references from the input. For each location, provide the name (how it appears in the text), latitude and longitude as a json-object, like { name: ..., position: [latitude, longitude] } and create a json-list out of these objects. Please only return the value with no explanation or further information and as a normal text, without labeling it as json.",
+                        "content": "You are an assitant that strictly extracts geographic references from the input. For each location, provide the name (how it appears in the text), latitude and longitude as a json-object, like { name: ..., position: [latitude, longitude] } and create a json-list out of these objects. In the list, there should be no duplications or repetitive places with the same place-name. Please only return the value with no explanation or further information and as a normal text, without labeling it as json.",
                     },
                     {
                         "role": "user",
@@ -70,7 +70,7 @@ async def geoparseTextSelfHosted(text: str, provider: dict):
             "messages": [
                 {
                     "role": "system",
-                    "content": "Extract geographic references from the input. For each location, provide the place-name (how it appears in the text), latitude and longitude of the place as a json-object, like { name: place-name, position: [latitude, longitude] } and create a json-list out of these objects. Please only return the value with no explanation or further information and as a normal text without labeling it as json.",
+                    "content": "Extract geographic references from the input. For each location, provide the place-name (how it appears in the text), latitude and longitude of the place as a json-object, like { name: place-name, position: [latitude, longitude] } and create a json-list out of these objects. In the list, there should be no duplications or repetitive places with the same place-name. Please only return the value with no explanation or further information and as a normal text without labeling it as json.",
                 },
                 {
                     "role": "user",

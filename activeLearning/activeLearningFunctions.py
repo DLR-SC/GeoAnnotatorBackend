@@ -69,7 +69,7 @@ def calculate_A_at_k(matched_coordinates, k):
     accuracy_at_k = (correct_matches / len(matched_coordinates)) * 100 if matched_coordinates else 0
     return accuracy_at_k
 
-def evaluateFeedback(feedback_data):
+async def evaluateFeedback(feedback_data):
     precision, recall, f1_score, matched_coordinates = compute_precision_recall_f1(feedback_data, "predictions", "corrections")
 
     # MLFlow Tracking
@@ -81,10 +81,10 @@ def evaluateFeedback(feedback_data):
         mlflow.log_metric("precision", precision)
         mlflow.log_metric("recall", recall)
         mlflow.log_metric("f1", f1_score)
-        mlflow.log_metric("A@161", round(calculate_A_at_k(matched_coordinates, 161),2))
-        mlflow.log_metric("A@10", round(calculate_A_at_k(matched_coordinates, 10),2))
+        mlflow.log_metric("A-161", round(calculate_A_at_k(matched_coordinates, 161),2))
+        mlflow.log_metric("A-10", round(calculate_A_at_k(matched_coordinates, 10),2))
 
-    del precision, recall, f1_score, matched_coordinates
+    # del precision, recall, f1_score, matched_coordinates
 
 'Retrain-Job-Check for Threshold'
 async def check_feedback_threshold(provider: Provider, DIR_PATH) -> None:
