@@ -57,7 +57,6 @@ def geoparseTextGPT(text: str, provider: Provider):
             ).choices[0].message.content
     output=json.loads(response)
 
-
     return output["georeferences"]
 
 '''
@@ -114,23 +113,3 @@ async def geoparseTextSelfHosted(text: str, provider: dict):
     output=response.json()
     
     return json.loads(output['choices'][0]['message']['content'])
-
-# '''
-#     Geoparsing text with a BERT model
-# '''
-# def geoparseTextBERT(text: str):
-#     # List of extracted locations
-#     locations = []
-
-#     # Extract placenames and append the corresponding coordinates
-#     for entity in bert_model(text):
-#         if entity['entity'] == 'I-LOC':  # Search for Locations
-#             location = entity['word']
-#             location_obj = geolocator.geocode(location)
-#             if location_obj:
-#                 lat = round(float(location_obj.latitude), 2)
-#                 long = round(float(location_obj.longitude), 2)
-#                 locations.append({ "name": location, "position": [lat, long] })
-#             time.sleep(1)  # Delay, to respect the API-rate limit
-
-#     return locations

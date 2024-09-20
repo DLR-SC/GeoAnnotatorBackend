@@ -1,14 +1,11 @@
-from transformers import AutoTokenizer, AutoModelForCausalLM, Trainer, TrainingArguments
-from peft import LoraConfig, get_peft_model
-from datasets import Dataset
-# import mlflow
-# import torch
+from activeLearning.activeLearning import retrain_model
+from utils.baseModels import FeedbackRequest, Provider
 
 from math import radians, sin, cos, sqrt, atan2
-from utils.baseModels import FeedbackRequest, Provider
+import mlflow
 import json
 import os
-
+import gc
 
 def calculate_distance(coord1, coord2):
     # Function to calculate distance between two coordinates
@@ -72,88 +69,22 @@ def calculate_A_at_k(matched_coordinates, k):
     accuracy_at_k = (correct_matches / len(matched_coordinates)) * 100 if matched_coordinates else 0
     return accuracy_at_k
 
-'Funktion zum Retraining des Modells mit neuen Daten'
-def retrain_model(feedback_data, provider):
-   # Preprocessing for Finetuning
-    texts = []
-    labels = []
+def evaluateFeedback(feedback_data):
+    precision, recall, f1_score, matched_coordinates = compute_precision_recall_f1(feedback_data, "predictions", "corrections")
 
-    for entry in feedback_data:
-        text = entry["text"]
-        corrected_labels = entry["corrections"]
-        
-        texts.append(text)
-        labels.append(corrected_labels)
+    # MLFlow Tracking
+    with mlflow.start_run(
+        run_name="Feedback-Evaluation",
+        tags={"feedback": "evaluation"},
+        description="Evaluation of feedback → precision, recall, f1, accuracy for locations in ~ 10km and ~ 161km distances"
+    ):
+        mlflow.log_metric("precision", precision)
+        mlflow.log_metric("recall", recall)
+        mlflow.log_metric("f1", f1_score)
+        mlflow.log_metric("A@161", round(calculate_A_at_k(matched_coordinates, 161),2))
+        mlflow.log_metric("A@10", round(calculate_A_at_k(matched_coordinates, 10),2))
 
-    # Hugging Face Dataset
-    train_dataset = Dataset.from_dict({"text": texts, "labels": labels})
-
-    # Lade das LLaMA-Modell und den Tokenizer
-    model_name = "path/to/llama-3.1-8b"  # Gib den Pfad zum GGUF-Modell an
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        load_in_8bit=True,  # Für 8-Bit-Training (speicher- und performance-effizient)
-        device_map="auto"
-    )
-
-    # Konfiguriere QLoRA für effizientes Feintuning
-    lora_config = LoraConfig(
-        r=4,                       
-        lora_alpha=16,             
-        lora_dropout=0.05,         
-        target_modules=["q_proj", "v_proj"],  
-        bias="none",               
-        task_type="CAUSAL_LM"      
-    )
-
-    # PEFT-Modell erstellen
-    peft_model = get_peft_model(model, lora_config)
-
-    # Trainingsargumente konfigurieren
-    training_args = TrainingArguments(
-        output_dir="./results",
-        per_device_train_batch_size=4,
-        num_train_epochs=3,
-        learning_rate=3e-4,
-        fp16=True,
-        logging_steps=10,
-        evaluation_strategy="steps",
-        save_steps=500,
-        save_total_limit=2
-    )
-
-    # Trainer initialisieren
-    trainer = Trainer(
-        model=peft_model,
-        args=training_args,
-        train_dataset=train_dataset,
-    )
-
-    # Fine-Tuning durchführen
-    trainer.train()
-
-    # Evaluation durchführen
-    # eval_results = trainer.evaluate()
-
-    # Modell speichern
-    trainer.save_model("./fine_tuned_model")
-    print("Modell wurde neu trainiert und gespeichert.")
-
-    #  # MLFlow Tracking starten
-    # mlflow.start_run()
-
-    # # Speichern der Metriken in MLFlow
-    # mlflow.log_metric("precision", eval_results['eval_precision'])
-    # mlflow.log_metric("recall", eval_results['eval_recall'])
-    # mlflow.log_metric("f1", eval_results['eval_f1'])
-
-    # # Speichern der Trainingsparameter
-    # mlflow.log_param("learning_rate", training_args.learning_rate)
-    # mlflow.log_param("batch_size", training_args.per_device_train_batch_size)
-    # mlflow.log_param("num_train_epochs", training_args.num_train_epochs)
-
-    # mlflow.end_run()
+    del precision, recall, f1_score, matched_coordinates
 
 'Retrain-Job-Check for Threshold'
 async def check_feedback_threshold(provider: Provider, DIR_PATH) -> None:
@@ -161,16 +92,17 @@ async def check_feedback_threshold(provider: Provider, DIR_PATH) -> None:
 
     with open(file_path, "r") as f:
         feedback_data = json.load(f)
-        if len(feedback_data) >= provider.data["threshold_retrain_job"]: 
-            # retrain_model(feedback_data, provider)
+        if len(feedback_data) >= provider.data["threshold_retrain_job"]:
+            await evaluateFeedback(feedback_data)
+            # await retrain_model(feedback_data, provider)
             print("Threshold achieved.")
             # Nach dem Training wird die Datei geleert
-            open(file_path, "w").close()
+            # open(file_path, "w").close()
+            gc.collect()
 
-# Restructure locations for further uses
+'Restructure locations for further uses'
 async def restructure_locations(locations):
     restructured = {location['name']: location['position'] for location in locations}
-    print(restructured)
     return restructured
 
 'Save data locally'
