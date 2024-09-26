@@ -16,7 +16,7 @@ router = APIRouter()
 
 @router.get('/geolocations')
 async def get_geolocations(placename: str):
-    # Static parameters (FIXME: outsource if necessary)
+    # Static parameters
     params = {
         'q': placename,
         'maxRows': 5,
