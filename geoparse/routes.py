@@ -40,7 +40,7 @@ async def geoparse_text(request: GeoparseRequest):
         option = request.provider["option"]
         match option:
             case "openai":
-                extracted_locations = geoparseTextGPT(request.text, request.provider)
+                extracted_locations = await geoparseTextGPT(request.text, request.provider)
             case "selfhosted":
                 extracted_locations = await geoparseTextSelfHosted(request.text, request.provider)
             case _:

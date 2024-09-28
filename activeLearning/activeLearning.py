@@ -24,7 +24,7 @@ async def retrain_model(feedback_data, provider):
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
         load_in_8bit=True,  # Für 8-Bit-Training (speicher- und performance-effizient)
-        device_map="auto"
+        device_map="auto",
     )
 
     # Konfiguriere QLoRA für effizientes Feintuning
