@@ -17,7 +17,7 @@ async def get_all_providers():
         data = await load_existing_provider_data(PROVIDER_FILE_PATH)
         return data
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to read providers: " + str(e))
+        raise HTTPException(status_code=500, detail="Failed to load providers!")
 
 @router.post("/provider")
 async def save_provider(request: Provider):

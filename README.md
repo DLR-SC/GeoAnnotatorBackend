@@ -8,7 +8,7 @@ plain texts, requesting coordinates of detected/given locations and more.
 To install and run the backend, following packages/modules are required:
 - Python 3.6 or higher
 ```bash
-conda create -n GeoAnnotator_backend python && conda activate GeoAnnotator_backend
+conda create -n GeoAnnotatorBackend python && conda activate GeoAnnotatorBackend
 ```
 - FastAPI (for Request-API's) and Uvicorn (ASGI, webserver for hosting and logging Request-API's)
 ```bash
@@ -21,6 +21,14 @@ pip install geocoder
 - httpx, for asynchrone HTTP-Requests
 ```bash
 conda install httpx
+```
+- OpenAI, for usage of GPT-models
+```bash
+conda install openai
+```
+- MLflow, for registering and tracking ML-experiments and metrics
+```bash
+conda install openai
 ```
 
 ## Usage

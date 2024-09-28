@@ -1,4 +1,4 @@
-from activeLearning.activeLearning import retrain_model
+# from activeLearning.activeLearning import retrain_model
 from utils.baseModels import FeedbackRequest, Provider
 
 from math import radians, sin, cos, sqrt, atan2
