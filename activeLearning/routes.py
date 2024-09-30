@@ -2,11 +2,9 @@ from fastapi import APIRouter, HTTPException
 from utils.baseModels import FeedbackRequest
 from activeLearning.activeLearningFunctions import *
 
-from dotenv import load_dotenv
 import os
 
-load_dotenv()
-FEEDBACK_DIR_PATH=os.getenv("FEEDBACK_DIR_PATH")
+FEEDBACK_DIR_PATH = "./out/feedback"
 
 router = APIRouter()
 

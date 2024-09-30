@@ -92,11 +92,10 @@ async def check_feedback_threshold(provider: Provider, DIR_PATH) -> None:
         feedback_data = json.load(f)
         if len(feedback_data) >= provider.data["threshold_retrain_job"]:
             await evaluateFeedback(feedback_data)
-            # await retrain_model(feedback_data, provider)
+            # retrain_model(feedback_data, provider).delay()
             print("Threshold achieved.")
             # Nach dem Training wird die Datei geleert
             # open(file_path, "w").close()
-            gc.collect()
 
 'Restructure locations for further uses'
 async def restructure_locations(locations):

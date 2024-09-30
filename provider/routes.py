@@ -2,12 +2,10 @@ from provider.providerFunctions import load_existing_provider_data
 from fastapi import APIRouter, HTTPException, Query
 from utils.baseModels import *
 
-from dotenv import load_dotenv
 import json
 import os
 
-load_dotenv()
-PROVIDER_FILE_PATH = os.getenv("PROVIDER_FILE_PATH")
+PROVIDER_FILE_PATH = "./out/providers.json"
 
 router = APIRouter()
 
