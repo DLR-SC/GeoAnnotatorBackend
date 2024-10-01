@@ -4,10 +4,5 @@ __pycache__/
 .env
 # Provider and feedback data
 out/
-# Local models
-models/
 # Evaluation and training metrics
 mlruns/
-# Frameworks
-llama.cpp/
-_unsloth_sentencepiece_temp/
