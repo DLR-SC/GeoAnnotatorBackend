@@ -1,7 +1,8 @@
 from math import radians, sin, cos, sqrt, atan2
 
-'Distance betweens two points on earth'
-def calculate_distance(coord1, coord2):
+def calculate_distance(coord1, coord2) -> float:
+    'Distance betweens two points on earth according to the Haversine formula'
+
     # Function to calculate distance between two coordinates
     # Convert latitude and longitude from degrees to radians
     lat1, lon1 = radians(coord1[0]), radians(coord1[1])
@@ -15,8 +16,9 @@ def calculate_distance(coord1, coord2):
     distance = 6371 * c  # Radius of Earth in kilometers
     return distance
 
-'Computation algorithm for precision, recall and f1-score'
 def compute_precision_recall_f1(instances, _truth, _pred):
+    'Computation algorithm for precision, recall and f1-score'
+    
     total_true_positives = 0
     total_false_positives = 0
     total_false_negatives = 0
@@ -54,8 +56,9 @@ def compute_precision_recall_f1(instances, _truth, _pred):
     f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
     return precision, recall, f1_score, matched_coordinates
 
-'Calculate accuracy of coordinates in Toleranceradius k'
 def calculate_A_at_k(matched_coordinates, k):
+    'Calculate accuracy of coordinates in Toleranceradius k'
+
     # Function to calculate accuracy at k (A@k)
     correct_matches = 0
     for pred_coord, truth_coord in matched_coordinates:

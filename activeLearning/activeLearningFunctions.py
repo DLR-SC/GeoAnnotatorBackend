@@ -6,8 +6,9 @@ import mlflow
 import json
 import os
 
-'Feedback-Evaluation'
 async def evaluateFeedback(feedback_data) -> None:
+    'Feedback-Evaluation'
+
     precision, recall, f1_score, matched_coordinates = compute_precision_recall_f1(feedback_data, "predictions", "corrections")
 
     # MLFlow Tracking
@@ -22,8 +23,9 @@ async def evaluateFeedback(feedback_data) -> None:
         mlflow.log_metric("A-161", round(calculate_A_at_k(matched_coordinates, 161),2))
         mlflow.log_metric("A-10", round(calculate_A_at_k(matched_coordinates, 10),2))
 
-'Trigger retrain-job of model'
 async def retrain_model(feedback_data, provider):
+    'Trigger retrain-job of model'
+
     response = requests.post(
         url='',
         json={
@@ -36,8 +38,9 @@ async def retrain_model(feedback_data, provider):
 
     return output
 
-'Retrain-Job-Check for Threshold'
 async def check_feedback_threshold(provider: Provider, DIR_PATH) -> None:
+    'Retrain-Job-Check for Threshold'
+
     file_path = os.path.join(DIR_PATH, f"{provider.instance_name}_feedback.json")
 
     with open(file_path, "r") as f:
@@ -47,12 +50,12 @@ async def check_feedback_threshold(provider: Provider, DIR_PATH) -> None:
             await evaluateFeedback(feedback_data)
             # Trigger retrain-job for model
             # await retrain_model(feedback_data, provider)
-            print("Threshold achieved.")
             # Clear feedback-data
             # open(file_path, "w").close()
 
-'Save data locally'
 async def store_feedback(feedback: FeedbackRequest, DIR_PATH) -> None:
+    'Save data locally'
+
     file_path = os.path.join(DIR_PATH, f"{feedback.provider.instance_name}_feedback.json")
 
     try:
@@ -74,8 +77,9 @@ async def store_feedback(feedback: FeedbackRequest, DIR_PATH) -> None:
     with open(file_path, "w") as f:
         json.dump(feedback_data, f, indent=2)
 
-'Return feedback data for specific provider'
 async def load_feedback(instance_name: str, DIR_PATH) -> list[dict]:
+    'Return feedback data for specific provider'
+
     file_path = os.path.join(DIR_PATH, f"{instance_name}_feedback.json")
 
     try:
