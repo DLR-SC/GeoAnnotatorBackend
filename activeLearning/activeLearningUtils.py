@@ -16,7 +16,7 @@ def calculate_distance(coord1, coord2) -> float:
     distance = 6371 * c  # Radius of Earth in kilometers
     return distance
 
-def compute_precision_recall_f1(instances, _truth, _pred):
+async def compute_precision_recall_f1(instances, _truth, _pred):
     'Computation algorithm for precision, recall and f1-score'
     
     total_true_positives = 0
@@ -56,7 +56,7 @@ def compute_precision_recall_f1(instances, _truth, _pred):
     f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
     return precision, recall, f1_score, matched_coordinates
 
-def calculate_A_at_k(matched_coordinates, k):
+async def calculate_A_at_k(matched_coordinates, k):
     'Calculate accuracy of coordinates in Toleranceradius k'
 
     # Function to calculate accuracy at k (A@k)
