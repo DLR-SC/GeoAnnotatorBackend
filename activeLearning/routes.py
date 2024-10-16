@@ -1,7 +1,7 @@
 import os
-from activeLearningFunctions import *
 from utils.baseModels import FeedbackRequest
 from fastapi import APIRouter, HTTPException
+from activeLearning.activeLearningFunctions import *
 
 FEEDBACK_DIR_PATH = "./out/feedback"
 
