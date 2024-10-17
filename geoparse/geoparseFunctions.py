@@ -6,7 +6,7 @@ import json
 system_content = "You are an assitant that strictly extracts geographic references from the input. For each location, provide the place-name (exactly as in the text), the latitude and the longitude of the place as a json-object, like { name: place-name, position: [latitude, longitude] }. Create a json-list out of these objects. In the list, there should be no repetitive places with the same place-name. Please only return the value with no explanation or further information and as a normal text without labeling it as json."
 'Command for LLM-system'
 
-def geoparseTextGPT(text: str, provider: Provider):
+async def geoparseTextGPT(text: str, provider: Provider):
     '''
         Geoparsing text with an OpenAI-GPT model
     '''
