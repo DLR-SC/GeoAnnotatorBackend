@@ -27,9 +27,9 @@ async def retrain_model(feedback_data, provider):
     'Trigger retrain-job of model'
 
     response = requests.post(
-        url='',
+        url='http://127.0.0.1:8571/api/retrain',
         json={
-            "feedback_data": feedback_data,
+            "feedback": feedback_data,
             "provider": provider
         }, 
         headers={"Content-Type": "application/json"},
