@@ -3,7 +3,7 @@ from openai import OpenAI
 import requests
 import json
 
-system_content = "You are an assitant that strictly extracts geographic references from the input. For each location, provide the place-name (exactly as in the text), the latitude and the longitude of the place as a json-object, like { name: place-name, position: [latitude, longitude] }. Create a json-list out of these objects. In the list, there should be no repetitive places with the same place-name. Please only return the value with no explanation or further information and as a normal text without labeling it as json."
+system_content = "You are an assistant that strictly and exclusively extracts geographic references mentioned in the user-input. For each location, provide the exact place-name as it appears in the input, along with its latitude and longitude, as a JSON object (e.g., { 'name': 'place-name', 'position': [latitude, longitude] }). Only return locations mentioned in the text. Under no circumstances should you add or generate locations not present in the text. The list must only contain the exact places mentioned and must be as precise as possible. Please return the result in JSON format without any explanations or labels."
 'Command for LLM-system'
 
 async def geoparseTextGPT(text: str, provider: Provider):
