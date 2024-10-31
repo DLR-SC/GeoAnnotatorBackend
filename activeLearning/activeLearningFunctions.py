@@ -23,7 +23,7 @@ async def evaluateFeedback(feedback_data) -> None:
         mlflow.log_metric("A-161", round(await calculate_A_at_k(matched_coordinates, 161),2))
         mlflow.log_metric("A-10", round(await calculate_A_at_k(matched_coordinates, 10),2))
 
-async def retrain_model(feedback_data, provider):
+async def retrain_model(feedback_data, provider) -> None:
     'Trigger retrain-job of model'
 
     response = requests.post(
@@ -36,7 +36,22 @@ async def retrain_model(feedback_data, provider):
     )
     output=response.json()
 
-    return output
+    trainer_train_stats = output["trainer_train_stats"]
+    trainer_eval_stats  = output["trainer_eval_stats"]
+    trainer_args        = output["trainer_args"]
+
+    # MLFlow Tracking
+    with mlflow.start_run(
+        run_name="Retrain-Job",
+        tags={"job": "retrain"},
+        description="Retrain-Job of configured model in provider"
+    ):
+        mlflow.log_param("learning_rate", trainer_args.learning_rate)
+        mlflow.log_param("batch_size", trainer_args.per_device_train_batch_size)
+        mlflow.log_param("epoch", trainer_args.num_train_epochs)
+
+        mlflow.log_metric("train_loss", trainer_train_stats.train_loss)
+        mlflow.log_metric("eval_loss", trainer_eval_stats.eval_loss)
 
 async def check_feedback_threshold(provider: Provider, DIR_PATH) -> None:
     'Retrain-Job-Check for Threshold'
@@ -49,9 +64,9 @@ async def check_feedback_threshold(provider: Provider, DIR_PATH) -> None:
             # Evaluate feedback
             await evaluateFeedback(feedback_data)
             # Trigger retrain-job for model
-            # await retrain_model(feedback_data, provider)
+            await retrain_model(feedback_data, provider)
             # Clear feedback-data
-            # open(file_path, "w").close()
+            open(file_path, "w").close()
 
 async def store_feedback(feedback: FeedbackRequest, DIR_PATH) -> None:
     'Save data locally'

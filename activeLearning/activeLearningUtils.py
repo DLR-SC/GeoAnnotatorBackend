@@ -67,19 +67,3 @@ async def calculate_A_at_k(matched_coordinates, k):
 
     accuracy_at_k = (correct_matches / len(matched_coordinates)) * 100 if matched_coordinates else 0
     return accuracy_at_k
-
-    # MLFlow Tracking
-    # with mlflow.start_run(
-    #     run_name="Retrain-Job",
-    #     tags={"job": "retrain"},
-    #     description="Retrain-Job of configured model in provider"
-    # ):
-        # Speichern der Metriken in MLFlow
-        # mlflow.log_metric("precision", eval_results['eval_precision'])
-        # mlflow.log_metric("recall", eval_results['eval_recall'])
-        # mlflow.log_metric("f1", eval_results['eval_f1'])
-
-        # Speichern der Trainingsparameter
-        # mlflow.log_param("learning_rate", training_args.learning_rate)
-        # mlflow.log_param("batch_size", training_args.per_device_train_batch_size)
-        # mlflow.log_param("num_train_epochs", training_args.num_train_epochs)
