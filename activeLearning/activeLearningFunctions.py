@@ -20,8 +20,8 @@ async def evaluateFeedback(feedback_data) -> None:
         mlflow.log_metric("Precision", precision)
         mlflow.log_metric("Recall", recall)
         mlflow.log_metric("F1 Score", f1_score)
-        mlflow.log_metric("A-161", round(await calculate_A_at_k(matched_coordinates, 161),2))
-        mlflow.log_metric("A-10", round(await calculate_A_at_k(matched_coordinates, 10),2))
+        mlflow.log_metric("A-at-k-161", round(await calculate_A_at_k(matched_coordinates, 161),2))
+        mlflow.log_metric("A-at-k-10", round(await calculate_A_at_k(matched_coordinates, 10),2))
 
 async def retrain_model(feedback_data, provider) -> None:
     'Trigger retrain-job of model'
