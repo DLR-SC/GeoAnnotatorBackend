@@ -13,11 +13,6 @@ class GeoparseRequest(BaseModel):
     text: str
     provider: dict
 
-# Georeference
-class Georeference(BaseModel):
-    name: str
-    position: tuple[float, float]
-
 # Feedback for active learning
 class FeedbackRequest(BaseModel):
     text: str
