@@ -1,4 +1,4 @@
-name: GeoAnnotatorBackend
+name: GeoSenseAnnotatorBackend
 channels:
   - conda-forge
   - defaults
