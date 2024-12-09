@@ -6,7 +6,7 @@ plain texts, requesting coordinates of place-names and initializing the Retrain-
 ## Installation
 In bash, run the following (Win/Lin/Os):
 ```bash
-conda create -n GeoSenseAnnotatorBackend httpx openai mlflow python -y && activate GeoSenseAnnotatorBackend
+conda create -n GeoSenseAnnotatorBackend httpx openai mlflow python -y && conda activate GeoSenseAnnotatorBackend
 
 pip install fastapi "uvicorn[standard]" geocoder
 ```
